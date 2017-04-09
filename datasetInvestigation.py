@@ -11,6 +11,7 @@ def extractDataset():
     # First, rename the site_url of fakenews to HOSTNAME so that the column matches with ucinews
     fakenews = fakenews.rename(columns={'site_url': 'HOSTNAME', 'title': 'TITLE'})
     
+    
     # Then, remove www. from the front of all UCI hostnames that don't have them (none of the fakenews sites have them and we want to compare them)
     ucinews.loc[ucinews['HOSTNAME'].str[0:4] == 'www.', 'HOSTNAME'] = ucinews.loc[ucinews['HOSTNAME'].str[0:4] == 'www.', 'HOSTNAME'].str[4:]
     
@@ -41,7 +42,5 @@ def extractDataset():
     
     # Some of the titles are turned into "NaN"s, so drop them
     conjoinedDataset = conjoinedDataset.dropna()
-    
-    #conjoinedDataset['FAKE'] = map(str, conjoinedDataset['FAKE'])
     
     return conjoinedDataset
