@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+includeHostnames = True
+
 # I don't even know if I can find all the stack overflow posts I used to help me figure out all this data wrangling
 # Pretend I linked them here
 def extractDataset():
@@ -31,10 +33,14 @@ def extractDataset():
     # But fill it with 1's for websites that are contained within the fake news dataset
     ucinews.loc[ucinews['HOSTNAME'].isin(intersectionSet_subset['HOSTNAME']), 'FAKE'] = 1
     
+    # For each of the two datasets, append the HOSTNAME as the first word in the title
+    if includeHostnames:
+        ucinews['TITLE'] = ucinews['HOSTNAME'] + ' ' + ucinews['TITLE']
+        fakenews['TITLE'] = fakenews['HOSTNAME'] + ' ' + fakenews['TITLE']
+    
     # Then, shrink each of the two DataFrames to contain only the "TITLE" and "FAKE" datapoints
     fakenews = np.array(pd.DataFrame({'TITLE': fakenews['TITLE'], 'FAKE': np.ones([fakenews.shape[0]])}))
     ucinews = np.array(pd.DataFrame({'TITLE': ucinews['TITLE'], 'FAKE': ucinews['FAKE']}))
-    
     
     # Conjoin them into one DataFrame, and we have ourselves a dataset to work with
     conjoinedDataset = np.concatenate((ucinews, fakenews))

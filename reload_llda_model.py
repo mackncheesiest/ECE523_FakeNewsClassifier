@@ -1,0 +1,9 @@
+import shelve
+
+def reload_llda_model(filename):
+    my_shelf = shelve.open(filename=filename)
+    for key in my_shelf:
+        globals()[key] = my_shelf[key]
+    my_shelf.close()
+    
+    return

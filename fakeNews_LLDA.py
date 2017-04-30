@@ -49,7 +49,7 @@ K = 2
 alpha = 0.0001
 beta = 0.0001
 # So, this seems to converge to a top 20 list *really* fast, so lets do like 10 iterations
-iterations = 10
+iterations = 100
 
 # Instantiate an LLDA object and "set the corpus" which is probably building some kind of internal model
 llda = LLDA(K, alpha, beta)
@@ -62,19 +62,19 @@ for i in range(iterations):
     sys.stderr.write("-- %d : %.4f\n" % (i, llda.perplexity()))
     llda.inference()
     
-    #phi = llda.phi()
-    #for k, label in enumerate(labelset):
-    #    print "\n-- label %d : %s" % (k, label)
-    #    for w in np.argsort(-phi[k])[:20]:
-    #        print "%s: %.4f" % (llda.vocas[w], phi[k,w])
+#    phi = llda.phi()
+#    for k, label in enumerate(labelset):
+#        print "\n-- label %d : %s" % (k, label)
+#        for w in np.argsort(-phi[k])[:20]:
+#            print "%s: %.4f" % (llda.vocas[w], phi[k,w])
 print "perplexity : %.4f" % llda.perplexity()
 
 # This prints out the 40 most likely words in each topic
-#phi = llda.phi()
-#for k, label in enumerate(labelset):
-#    print "\n-- label %d : %s" % (k, label)
-#    for w in np.argsort(-phi[k])[:40]:
-#        print "%s: %.4f" % (llda.vocas[w], phi[k,w])
+phi = llda.phi()
+for k, label in enumerate(labelset):
+    print "\n-- label %d : %s" % (k, label)
+    for w in np.argsort(-phi[k])[:40]:
+        print "%s: %.4f" % (llda.vocas[w], phi[k,w])
         
 testCorpus = list(testSet[:, 0])
 
@@ -121,3 +121,16 @@ for i in range(len(testSet[:, 0])):
     #print("\n\n")
 
 print("Testing Accuracy: " + str((100.*totalPredictionsCorrect)/len(testSet[:, 0])))
+
+# Shelve the trained model
+# http://stackoverflow.com/questions/2960864/how-can-i-save-all-the-variables-in-the-current-python-session
+# We don't actually need them all, however
+import shelve
+filename = './SavedModels/llda_prepended_hostnames.dat'
+my_shelf = shelve.open(filename, 'n')
+
+my_shelf['llda'] = globals()['llda']
+my_shelf['trainSet'] = globals()['trainSet']
+my_shelf['testSet'] = globals()['testSet']
+
+my_shelf.close()
