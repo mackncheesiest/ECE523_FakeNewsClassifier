@@ -6,6 +6,8 @@ from datasetInvestigation import extractDataset
 import numpy as np
 # This lets us split the data into training and testing sets
 from sklearn.model_selection import train_test_split
+# So that we can evalutate with metrics other than testing accuracy
+from sklearn.metrics import matthews_corrcoef
 # And the dev we're borrowing from  prints to sys.stderr in the nltk example, so for now lets just keep doing that
 import sys
 
@@ -49,7 +51,7 @@ K = 2
 alpha = 0.0001
 beta = 0.0001
 # So, this seems to converge to a top 20 list *really* fast, so lets do like 10 iterations
-iterations = 100
+iterations = 5
 
 # Instantiate an LLDA object and "set the corpus" which is probably building some kind of internal model
 llda = LLDA(K, alpha, beta)
@@ -62,11 +64,11 @@ for i in range(iterations):
     sys.stderr.write("-- %d : %.4f\n" % (i, llda.perplexity()))
     llda.inference()
     
-#    phi = llda.phi()
-#    for k, label in enumerate(labelset):
-#        print "\n-- label %d : %s" % (k, label)
-#        for w in np.argsort(-phi[k])[:20]:
-#            print "%s: %.4f" % (llda.vocas[w], phi[k,w])
+    phi = llda.phi()
+    for k, label in enumerate(labelset):
+        print "\n-- label %d : %s" % (k, label)
+        for w in np.argsort(-phi[k])[:20]:
+            print "%s: %.4f" % (llda.vocas[w], phi[k,w])
 print "perplexity : %.4f" % llda.perplexity()
 
 # This prints out the 40 most likely words in each topic
@@ -85,6 +87,10 @@ for i in range(len(testCorpus)):
     
 phi = llda.phi()
 totalPredictionsCorrect = 0
+
+pred_classes = np.zeros([np.size(testSet, axis=0)])
+true_classes = np.float64(np.reshape(testSet[:, 1], [np.size(testSet, axis=0)]))
+
 for i in range(len(testSet[:, 0])):
 #for i in range(1000):
     # Each column is a one-hot entry indicating the existence of a particular word from the vocab in the dataset
@@ -110,6 +116,7 @@ for i in range(len(testSet[:, 0])):
         #print("Classified as fake")
         expected = 1.0
         
+    pred_classes[i] = expected
     #print("Actual label: " + str(testSet[i, 1]))
     
     if expected == testSet[i, 1]:
@@ -121,12 +128,13 @@ for i in range(len(testSet[:, 0])):
     #print("\n\n")
 
 print("Testing Accuracy: " + str((100.*totalPredictionsCorrect)/len(testSet[:, 0])))
+print("Matthews Correlation Coeff: " + str(matthews_corrcoef(y_true=true_classes, y_pred=pred_classes)))
 
 # Shelve the trained model
 # http://stackoverflow.com/questions/2960864/how-can-i-save-all-the-variables-in-the-current-python-session
 # We don't actually need them all, however
 import shelve
-filename = './SavedModels/llda_prepended_hostnames.dat'
+filename = './SavedModels/llda_prepended_hostnames_5iter.dat'
 my_shelf = shelve.open(filename, 'n')
 
 my_shelf['llda'] = globals()['llda']
