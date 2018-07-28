@@ -16,7 +16,7 @@ Provides the llda library that we use as the basis of our project's implementati
 - llda_nltk.py
 Provides a working example used as the basis for fakeNews_LLDA.py
 
-Spoiler alert: it mostly just ends up learning to distinguish the difference in popular news topics between 2014 and 2016. Kanye West got married in 2014, and the 2016 election was in 2016 ¯\\_(ツ)_/¯
+Spoiler alert: it mostly just ends up learning to distinguish the difference in popular news topics between 2014 and 2016. Kanye West got married in 2014, and the 2016 election was in 2016 ¯\\\_(ツ)\_/¯
 
 Try it with datasets from the same year and maybe things'll turn out better.
 
